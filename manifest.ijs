@@ -9,7 +9,7 @@ Outputs various documentation formats.
 Contributed by Ric Sherlock
 )
 
-NB. VERSION=: '1.0.0'
+VERSION=: ''
 
 RELEASE=: 'j701'
 
