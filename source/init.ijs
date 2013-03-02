@@ -1,7 +1,7 @@
 NB. init
 require 'tables/csv'
 
-coclass 'rgsjoxygen'
+coclass 'joxygen'
 
 NB. n Valid tags for joxygen comments
 NB. descrip The order of tags in Tags is order they appear in docs

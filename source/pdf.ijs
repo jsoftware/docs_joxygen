@@ -3,7 +3,7 @@ NB. PDF output using format/publish
 
 require 'format/publish'
 coclass 'rgsjoxypdf'
-coinsert 'rgsjoxygen'
+coinsert 'joxygen'
 
 writeJoxy=: 4 : 0
  txt=. LF&joinstring makeWordSection each x

@@ -12,7 +12,7 @@ datetime=: '~Addons/docs/joxygen/test/'&,each datetime
 
 test=: datetime
 
-raw=: ; readScripts_rgsjoxygen_ test
-parsed=: parseJoxygen_rgsjoxygen_ raw
+raw=: ; readScripts_joxygen_ test
+parsed=: parseJoxygen_joxygen_ raw
 
 ('~temp/datetime';'pdf') joxygenize test

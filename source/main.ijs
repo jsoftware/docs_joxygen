@@ -39,4 +39,4 @@ checkValidDocs=: 3 : 0
  NB.    Description
 )
 
-joxygenize_z_=: joxygenize_rgsjoxygen_
+joxygenize_z_=: joxygenize_joxygen_
