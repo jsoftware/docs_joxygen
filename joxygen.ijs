@@ -1,7 +1,7 @@
 NB. init
 require 'tables/csv'
 
-coclass 'rgsjoxygen'
+coclass 'joxygen'
 
 NB. n Valid tags for joxygen comments
 NB. descrip The order of tags in Tags is order they appear in docs
@@ -10,6 +10,11 @@ Tags=: ;:'name type caption descrip note usage y x m n u v result author seealso
 NB. n Valid types for words in joxygen
 Types=: ;:'a c v m d n' 
 TypeNames=: ;:'adverb conjunction verb monad dyad noun'
+
+NB. n Comment syntax 
+JoxyHdr=: 'NB.*'
+JoxyBdy=: 'NB.-'
+JoxyCmt=: JoxyHdr;JoxyBdy
 NB. =========================================================
 NB. application specific utils
 
@@ -65,13 +70,13 @@ checkValidDocs=: 3 : 0
  NB.    Description
 )
 
-joxygenize_z_=: joxygenize_rgsjoxygen_
+joxygenize_z_=: joxygenize_joxygen_
 NB. =========================================================
 NB. Parsing
 
 NB. v Parses Joxygen comments from a J script
 parseJoxygen=: 3 : 0
- msk=. (('NB.-',:'NB.*') e.~ ]) 4&{.&> y
+ msk=. ((>JoxyCmt) e.~ ]) 4&{.&> y
  mskend=. 0, 2 >/\ msk 
  assgn=. y #~ 0, 2 >/\ msk
  blks=. (mskend <;.2 msk) #&.> mskend <;.2 y
@@ -110,7 +115,7 @@ parseNameBlk=: 4 : 0
 )
 
 NB. v Creates boolean mask of items containing Type and Captions entries
-mskTypeCaption=: (<'NB.*') = 4&{.&.>
+mskTypeCaption=: (<JoxyHdr) = 4&{.&.>
 
 NB. v Gets the line containing the (name), type and caption from a block
 getTypeCaption=: ;@(#~ mskTypeCaption)
@@ -126,7 +131,7 @@ NB. PDF output using format/publish
 
 require 'format/publish'
 coclass 'rgsjoxypdf'
-coinsert 'rgsjoxygen'
+coinsert 'joxygen'
 
 writeJoxy=: 4 : 0
  txt=. LF&joinstring makeWordSection each x

@@ -7,12 +7,15 @@ NB.  ('~temp/joxydocs';'pdf') joxygenize '~Addons/docs/joxygen/test/simplescript
 
 simple=: <'~Addons/docs/joxygen/test/simplescript.ijs'
 
-datetime=: <;._2 'init.ijs utils.ijs dayno.ijs '
-datetime=: '~Addons/docs/joxygen/test/'&,each datetime
+test0=: <;._2 'init.ijs utils.ijs dayno.ijs '
+test0=: '~Addons/docs/joxygen/test/'&,each test0
 
-test=: datetime
+test1=: <'~Addons/types/datetime/datetime.ijs'
 
-raw=: ; readScripts_joxygen_ test
+raw=: ; readScripts_joxygen_ test0
 parsed=: parseJoxygen_joxygen_ raw
 
-('~temp/datetime';'pdf') joxygenize test
+ferase '~temp/datetime.joxy';'~temp/datetime.pdf'
+
+('~temp/datetime';'raw') joxygenize test1
+('~temp/datetime';'pdf') joxygenize test1

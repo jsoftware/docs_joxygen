@@ -3,7 +3,7 @@ NB. Parsing
 
 NB. v Parses Joxygen comments from a J script
 parseJoxygen=: 3 : 0
- msk=. (('NB.-',:'NB.*') e.~ ]) 4&{.&> y
+ msk=. ((>JoxyCmt) e.~ ]) 4&{.&> y
  mskend=. 0, 2 >/\ msk 
  assgn=. y #~ 0, 2 >/\ msk
  blks=. (mskend <;.2 msk) #&.> mskend <;.2 y
@@ -42,7 +42,7 @@ parseNameBlk=: 4 : 0
 )
 
 NB. v Creates boolean mask of items containing Type and Captions entries
-mskTypeCaption=: (<'NB.*') = 4&{.&.>
+mskTypeCaption=: (<JoxyHdr) = 4&{.&.>
 
 NB. v Gets the line containing the (name), type and caption from a block
 getTypeCaption=: ;@(#~ mskTypeCaption)

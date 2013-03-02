@@ -10,3 +10,8 @@ Tags=: ;:'name type caption descrip note usage y x m n u v result author seealso
 NB. n Valid types for words in joxygen
 Types=: ;:'a c v m d n' 
 TypeNames=: ;:'adverb conjunction verb monad dyad noun'
+
+NB. n Comment syntax 
+JoxyHdr=: 'NB.*'
+JoxyBdy=: 'NB.-'
+JoxyCmt=: JoxyHdr;JoxyBdy
