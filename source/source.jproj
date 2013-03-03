@@ -7,4 +7,5 @@ init.ijs
 utils.ijs
 main.ijs
 parse.ijs
+markdown.ijs
 pdf.ijs

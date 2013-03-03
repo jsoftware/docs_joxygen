@@ -20,25 +20,25 @@ NB. v Parses a block associated with a name
 NB. y: boxed blocks of documentation
 NB. x: boxed assignment lines for documentation blocks
 parseNameBlk=: 4 : 0
-  nme=. getAssignName &> boxopen x
-  'type caption'=. parseTypeCaption getTypeCaption y
-  tmp=. y #~ -. mskTypeCaption y
-  tags=. (4 }. ' '&taketo) each tmp
-  msk=. (0 < #)&> tags
-  tags=. }:&.> msk # tags
-  assert. tags e. Tags
-  cnt=. ' '&takeafter each tmp
-  cnt=. LF&joinstring&.> msk <;.1 cnt
-  NB. all groups of lines start with a valid tag name and
-  NB. end before another line with a valid tag name
-  NB. join groups of lines together
-  NB. change to the following later??
-  NB. 1st group of lines followed by empty line is Description
-  NB. 2nd group of lines followed by empty line is Details
+ nme=. getAssignName &> boxopen x
+ 'type caption'=. parseTypeCaption getTypeCaption y
+ tmp=. y #~ -. mskTypeCaption y
+ tags=. (4 }. ' '&taketo) each tmp
+ msk=. (0 < #)&> tags
+ tags=. }:&.> msk # tags
+ assert. tags e. Tags
+ cnt=. ' '&takeafter each tmp
+ cnt=. LF&joinstring&.> msk <;.1 cnt
+ NB. all groups of lines start with a valid tag name and
+ NB. end before another line with a valid tag name
+ NB. join groups of lines together
+ NB. change to the following later??
+ NB. 1st group of lines followed by empty line is Description
+ NB. 2nd group of lines followed by empty line is Details
   
-  tags=. ('name';'type';'caption'),tags
-  cnt=. nme,(type;caption),boxxopen cnt
-  tags,.cnt
+ tags=. ('name';'type';'caption'),tags
+ cnt=. nme,(type;caption),boxxopen cnt
+ tags,.cnt
 )
 
 NB. v Creates boolean mask of items containing Type and Captions entries

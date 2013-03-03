@@ -15,7 +15,13 @@ test1=: <'~Addons/types/datetime/datetime.ijs'
 raw=: ; readScripts_joxygen_ test0
 parsed=: parseJoxygen_joxygen_ raw
 
-ferase '~temp/datetime.joxy';'~temp/datetime.pdf'
+ferase '~temp/datetime.joxy';'~temp/datetime.pdf';'~temp/datetime_markdown.txt'
 
 ('~temp/datetime';'raw') joxygenize test1
 ('~temp/datetime';'pdf') joxygenize test1
+('~temp/datetime_markdown';'markdown') joxygenize test1
+('~temp/simple';'markdown') joxygenize simple
+
+Note 'run pandoc'
+.cabal/bin/pandoc -f markdown -o ~/j64-701-user/temp/datetime_markdown.pdf ~/j64-701-user/temp/datetime_markdown.txt
+)
