@@ -3,8 +3,9 @@ NB. joxygen manifest
 CAPTION=: 'Documenting J Scripts'
 
 DESCRIPTION=: 0 : 0
-Parses in-script comments to that use Joxygen conventions.
-Outputs various documentation formats.
+Generates various documentation formats from in-script comments
+that follow Joxygen conventions.
+Inspired by Doxygen, Roxygen.
 
 Contributed by Ric Sherlock
 )

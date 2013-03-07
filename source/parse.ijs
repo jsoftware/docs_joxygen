@@ -25,7 +25,7 @@ parseNameBlk=: 4 : 0
  tmp=. y #~ -. mskTypeCaption y
  tags=. (4 }. ' '&taketo) each tmp
  msk=. (0 < #)&> tags
- tags=. }:&.> msk # tags
+ tags=. (}: , ':' -.~ {:)&.> msk # tags  NB. drop trailing ':' from tag
  assert. tags e. Tags
  cnt=. ' '&takeafter each tmp
  cnt=. LF&joinstring&.> msk <;.1 cnt

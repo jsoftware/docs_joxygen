@@ -8,7 +8,7 @@ writeJoxy=: 4 : 0
  txt=. LF&joinstring makeWordSection each x
  txt=. Head,txt
  txt fwrites y,'.txt' NB. create input files for format/publish 
- NB. publish jpath y,'.txt' NB. run format/publish to create PDF
+ NB. 2!:0 'pandoc -f markdown -o ',(jpath '~temp/mymarkdown.pdf'),' ', jpath '~temp/mymarkdown.txt'
 )
 
 Head=: 0 : 0

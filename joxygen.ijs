@@ -1,10 +1,15 @@
+NB. =========================================================
+NB.% docs/joxygen - Generate documentation from commented J source
+NB.% Ric Sherlock
+NB.% 2013-03-03
+
 NB. init
 require 'tables/csv'
 
 coclass 'joxygen'
 
-NB. n Valid tags for joxygen comments
-NB. descrip The order of tags in Tags is order they appear in docs
+NB.* n Valid tags for joxygen comments
+NB.-descrip: The order of tags in Tags is order they appear in docs.
 Tags=: ;:'name type caption descrip note usage y x m n u v result author seealso eg'
 
 NB. n Valid types for words in joxygen
@@ -12,9 +17,10 @@ Types=: ;:'a c v m d n'
 TypeNames=: ;:'adverb conjunction verb monad dyad noun'
 
 NB. n Comment syntax 
+JoxyTitle=: 'NB.%'
 JoxyHdr=: 'NB.*'
 JoxyBdy=: 'NB.-'
-JoxyCmt=: JoxyHdr;JoxyBdy
+JoxyCmt=: JoxyTitle;JoxyHdr;JoxyBdy
 NB. =========================================================
 NB. application specific utils
 
@@ -32,9 +38,21 @@ getAssignName=: ({~ (<'=:') <:@:i.~ ])@;:
 NB. =========================================================
 NB. Main words for script
 
-NB.* v take list of scripts and creates docs from inline markup
-NB.-result: writes PDF document, returns empty
-NB.! add option to input filename of joxygenized
+Note 'plan for whole addon'
+Pass name of addon and scripts to parse.
+Looks for manifest & reads it.
+Appends manifest info to `raw` that is parsed to `writeJoxy`.
+Also need ability to add free form sections (not named objects) to scripts.
+)
+
+NB.* v take addon path and creates docs from inline markup
+NB.-result: writes docs, returns empty
+joxygenizeAddon=: 3 : 0
+ empty''
+)
+
+NB.* v Creates docs from inline markup in a list of scripts
+NB.-result: Writes to document, returns empty.
 joxygenize=: 3 : 0
  ('~temp/joxydocs';'raw') joxygenize y
  :
@@ -45,7 +63,7 @@ joxygenize=: 3 : 0
  raw=. parseJoxygen script NB. parses script(s)
  select. fmt
    case. 'raw' do. raw writeJoxy outfn             NB. write raw docs to file
-   case. 'pdf' do. raw writeJoxy_rgsjoxypdf_ outfn NB. write docs to pdf file
+   case. 'pdf' do. raw writeJoxy_rgsjoxypdf_ outfn NB. write docs to pdf file using format/publish addon
    case. 'markdown' do. raw writeJoxy_rgsjoxymarkdown_ outfn
    NB. case. 'term' do. NB. output docs to terminal?
    case. do. echo 'This format is not currently supported.'
@@ -97,7 +115,7 @@ parseNameBlk=: 4 : 0
  tmp=. y #~ -. mskTypeCaption y
  tags=. (4 }. ' '&taketo) each tmp
  msk=. (0 < #)&> tags
- tags=. }:&.> msk # tags
+ tags=. (}: , ':' -.~ {:)&.> msk # tags  NB. drop trailing ':' from tag
  assert. tags e. Tags
  cnt=. ' '&takeafter each tmp
  cnt=. LF&joinstring&.> msk <;.1 cnt
@@ -135,7 +153,7 @@ writeJoxy=: 4 : 0
  txt=. LF&joinstring makeWordSection each x
  txt=. Head,txt
  txt fwrites y,'.txt' NB. create input files for format/publish 
- NB. publish jpath y,'.txt' NB. run format/publish to create PDF
+ NB. 2!:0 'pandoc -f markdown -o ',(jpath '~temp/mymarkdown.pdf'),' ', jpath '~temp/mymarkdown.txt'
 )
 
 Head=: 0 : 0

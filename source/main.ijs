@@ -1,9 +1,21 @@
 NB. =========================================================
 NB. Main words for script
 
-NB.* v take list of scripts and creates docs from inline markup
-NB.-result: writes PDF document, returns empty
-NB.! add option to input filename of joxygenized
+Note 'plan for whole addon'
+Pass name of addon and scripts to parse.
+Looks for manifest & reads it.
+Appends manifest info to `raw` that is parsed to `writeJoxy`.
+Also need ability to add free form sections (not named objects) to scripts.
+)
+
+NB.* v take addon path and creates docs from inline markup
+NB.-result: writes docs, returns empty
+joxygenizeAddon=: 3 : 0
+ empty''
+)
+
+NB.* v Creates docs from inline markup in a list of scripts
+NB.-result: Writes to document, returns empty.
 joxygenize=: 3 : 0
  ('~temp/joxydocs';'raw') joxygenize y
  :
@@ -14,7 +26,7 @@ joxygenize=: 3 : 0
  raw=. parseJoxygen script NB. parses script(s)
  select. fmt
    case. 'raw' do. raw writeJoxy outfn             NB. write raw docs to file
-   case. 'pdf' do. raw writeJoxy_rgsjoxypdf_ outfn NB. write docs to pdf file
+   case. 'pdf' do. raw writeJoxy_rgsjoxypdf_ outfn NB. write docs to pdf file using format/publish addon
    case. 'markdown' do. raw writeJoxy_rgsjoxymarkdown_ outfn
    NB. case. 'term' do. NB. output docs to terminal?
    case. do. echo 'This format is not currently supported.'
