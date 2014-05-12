@@ -14,7 +14,7 @@ VERSION=: ''
 
 RELEASE=: 'j802'
 
-PLATFORMS=: ''
+PLATFORMS=: 'linux win darwin android'
 
 FILES=: 0 : 0
 manifest.ijs
