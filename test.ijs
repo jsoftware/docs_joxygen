@@ -3,6 +3,8 @@ NB.
 NB. This builds html docs in the Target directory, that should match
 NB. those distributed in ~addons/docs/joxygen/testdocs
 
+require 'docs/joxygen'
+
 NB. source directory (used to find source files,
 NB. but not used in the html docs)
 Source=: jpath '~addons/docs/joxygen/testscripts'
