@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title>compare.ijs</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="joxygen.css" type="text/css" />
+</head>
+<body>
+<div id="header">
+<h1 class="title">compare.ijs</h1>
+</div>
+<p>This script defines comparison utilities and is included in the J standard library. Definitions are loaded into the jcompare locale with cover functions in z.</p>
+<h2>Definitions</h2>
+<table class="map"><tr><td class="key">
+C
+</td><td>
+<a href="#compare">compare</a>
+</td></tr>
+<tr><td class="key">
+F
+</td><td>
+<a href="#fcompare">fcompare</a>, <a href="#fcompares">fcompares</a>
+</td></tr>
+</table>
+
+<h2 id="compare" class="hdef">compare (verb)</h2>
+<p>Compare character data.</p>
+<h3>Syntax</h3>
+<pre><code>text1 compare text2</code></pre>
+<p>Arguments may be character strings or character matrices with trailing blanks ignored.</p>
+<p>Result shows lines not matched, in form:</p>
+<pre><code>n [l] text</code></pre>
+<p>where:</p>
+<p>  n = 0=left argument, 1=right argument<br /> [l] = line number<br /> text = text on line</p>
+<h2 id="fcompare" class="hdef">fcompare (verb)</h2>
+<p>Compare two text files.</p>
+<h3>Syntax</h3>
+<pre><code>opt fcompare files</code></pre>
+<p>where:</p>
+<p> opt is optional suffix<br /> files is 2 file names or prefixes, given<br /> either as character string cut on blanks<br /> or as 2-element boxed list</p>
+<h3>Example</h3>
+<pre><code>fcompare &#39;~mywork/myutil.ijs ~/jbak/mywork/myutil.ijs&#39;
+&#39;/myutil.ijs&#39; fcompare jpath &#39;~mywork&#39;;&#39;/jbak/mywork&#39;</code></pre>
+<h2 id="fcompares" class="hdef">fcompares (verb)</h2>
+<p>as fcompare but ignoring different line separators</p>
+</body>
+</html>

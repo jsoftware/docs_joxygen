@@ -1,393 +1,313 @@
-NB. =========================================================
-NB.% docs/joxygen - Generate documentation from commented J source
-NB.% Ric Sherlock
-NB.% 2013-03-03
-
 NB. init
-require 'tables/csv'
 
-coclass 'joxygen'
+NB.* n body tags (NTC are required, desc follows this)
+NB. in order of presentation
+NTC=: ;:'name type caption'
+Tags=: ;:'syntax example note'
+TagNames=: ;:'Syntax Example Note'
 
-NB.* n Valid tags for joxygen comments
-NB.-descrip: The order of tags in Tags is order they appear in docs.
-Tags=: ;:'name type caption descrip note usage y x m n u v result author seealso eg'
-
-NB. n Valid types for words in joxygen
-Types=: ;:'a c v m d n' 
+NB. n types
+Types=: 'acvmdn'
 TypeNames=: ;:'adverb conjunction verb monad dyad noun'
+NB. util
 
-NB. n Comment syntax 
-JoxyTitle=: 'NB.%'
-JoxyHdr=: 'NB.*'
-JoxyBdy=: 'NB.-'
-JoxyCmt=: JoxyTitle;JoxyHdr;JoxyBdy
-NB. =========================================================
-NB. application specific utils
+h0=: '% '&, @ (,&LF2)
+h1=: '# '&, @ (,&LF2)
+h2=: '## '&, @ (,&LF2)
+h3=: '### '&, @ (,&LF2)
+tr=: '<tr>'&, @ (,&('</tr>',LF))
 
-readScripts=:  'b'&freads each
+NB. markdown anchor
+anchor=: '[' , ] , '](#' , ,&')'
 
-writeJoxy=: ;@[ writecsv '.joxy' ,~ ] NB. force suffix to .joxy
-readJoxy=: [: (((<'name') = {."1) <;.1 ]) readcsv
+NB. markdown anchor script
+anchorscript=: '[' , ] , '](' , ,&'.htm)'@(i.&'.' {. ])
 
-NB. v Checks that name is assigned in sentence
-chkAssign=: ((<'=:')&e.)@;:
+NB. first 1's in mask
+firstones=: > |.!.0
 
-NB. v Gets the first assigned name in a sentence
-getAssignName=: ({~ (<'=:') <:@:i.~ ])@;:
+NB. apply verb with mask, preserving header
+fmask=: 1 : (':';'((x i. 1) {. y),;x <@u;. 1 y')
 
-NB. =========================================================
-NB. Main words for script
+NB. add LF2 if nonempty
+lf2sep=: , LF2 #~ 0<#
 
-Note 'plan for whole addon'
-Pass name of addon and scripts to parse.
-Looks for manifest & reads it.
-Appends manifest info to `raw` that is parsed to `writeJoxy`.
-Also need ability to add free form sections (not named objects) to scripts.
-)
+NB. separate names in map:
+mapsep=: 2 }. ;@:(', '&,&.>)
 
-NB.* v take addon path and creates docs from inline markup
-NB.-result: writes docs, returns empty
-joxygenizeAddon=: 3 : 0
- empty''
-)
+NB. remove trailing whitespace
+remtws=: #~ [: (+./\.) -.@(e.&(' ',TAB))
 
-NB.* v Creates docs from inline markup in a list of scripts
-NB.-result: Writes to document, returns empty.
-joxygenize=: 3 : 0
- ('~temp/joxydocs';'raw') joxygenize y
- :
- NB. gets script(s)
- 'outfn fmt'=. 2 {. boxopen x
- scriptnms=. boxopen y
- script=. ; readScripts scriptnms
- raw=. parseJoxygen script NB. parses script(s)
- select. fmt
-   case. 'raw' do. raw writeJoxy outfn             NB. write raw docs to file
-   case. 'pdf' do. raw writeJoxy_rgsjoxypdf_ outfn NB. write docs to pdf file using format/publish addon
-   case. 'markdown' do. raw writeJoxy_rgsjoxymarkdown_ outfn
-   NB. case. 'term' do. NB. output docs to terminal?
-   case. do. echo 'This format is not currently supported.'
- end.
- empty''
-)
+NB. add '.' if needed
+termstop=: ,'.'-.{:
 
-
-
-
-NB.* v Check for valid documentation
-checkValidDocs=: 3 : 0
- NB. last line in block contains assignment of name
- NB. doc name (if present) matches assigned name
- NB. mandatory parameters are:
- NB.   Type, Caption
- NB.  Verbs: y, result
- NB.  Adverbs: u
- NB.  Conjunction: one from each of n,u and m,v
- NB. optional parameters are:
- NB.    Description
-)
-
-joxygenize_z_=: joxygenize_joxygen_
-NB. =========================================================
-NB. Parsing
-
-NB. v Parses Joxygen comments from a J script
-parseJoxygen=: 3 : 0
- msk=. ((>JoxyCmt) e.~ ]) 4&{.&> y
- mskend=. 0, 2 >/\ msk 
- assgn=. y #~ 0, 2 >/\ msk
- blks=. (mskend <;.2 msk) #&.> mskend <;.2 y
- msk=. chkAssign&> assgn
- assgn=. msk # assgn
- blks=. msk # blks  NB. drop blocks where no name assigned in following line
- if. 0=#blks do. '' return. end.
- assert. assgn =&# blks
- assgn;<blks
- assgn parseNameBlk each blks
-)
-
-NB. v Parses a block associated with a name
-NB. y: boxed blocks of documentation
-NB. x: boxed assignment lines for documentation blocks
-parseNameBlk=: 4 : 0
- nme=. getAssignName &> boxopen x
- 'type caption'=. parseTypeCaption getTypeCaption y
- tmp=. y #~ -. mskTypeCaption y
- tags=. (4 }. ' '&taketo) each tmp
- msk=. (0 < #)&> tags
- tags=. (}: , ':' -.~ {:)&.> msk # tags  NB. drop trailing ':' from tag
- assert. tags e. Tags
- cnt=. ' '&takeafter each tmp
- cnt=. LF&joinstring&.> msk <;.1 cnt
- NB. all groups of lines start with a valid tag name and
- NB. end before another line with a valid tag name
- NB. join groups of lines together
- NB. change to the following later??
- NB. 1st group of lines followed by empty line is Description
- NB. 2nd group of lines followed by empty line is Details
-  
- tags=. ('name';'type';'caption'),tags
- cnt=. nme,(type;caption),boxxopen cnt
- tags,.cnt
-)
-
-NB. v Creates boolean mask of items containing Type and Captions entries
-mskTypeCaption=: (<JoxyHdr) = 4&{.&.>
-
-NB. v Gets the line containing the (name), type and caption from a block
-getTypeCaption=: ;@(#~ mskTypeCaption)
-
-NB. v parse type and caption from line containing (name), type and caption
-NB. result: type;caption
-parseTypeCaption=: 3 : 0
- tmp=. ' '&takeafter y
- (' '&taketo ; ' '&takeafter) tmp
-)
-NB. =========================================================
-NB. Markdown output for use with PanDoc
-
-coclass 'rgsjoxymarkdown'
-coinsert 'joxygen'
-
-writeJoxy=: 4 : 0
- txt=. LF&joinstring makeWordSection each x
- txt=. Head,txt
- txt fwrites y,'.txt' NB. create input files for format/publish 
- NB. 2!:0 'pandoc -f markdown -o ',(jpath '~temp/mymarkdown.pdf'),' ', jpath '~temp/mymarkdown.txt'
-)
-
-Head=: 0 : 0
-% J topics documented 
-)
-
-NB. v Creates section of text markup for a Word
-makeWordSection=: 3 : 0
- tbl=. y #~ ({."1 y) e. Tags
- tbl=. processContent tbl
- msk=. Tags e. {."1 tbl
- tmpl=. msk # Word_tmpl
- tmpl=. ;({. , (<tmpl_typecaption) , 3&}.) tmpl
- srch=. ('<%' , ,&'%>') each {."1 tbl
- tmpl rplc , srch ,. {:"1 tbl  
-)
-
-NB. v Makes changes to some content to display better
-processContent=: 3 : 0
- tbl=. y
- idx=. tbl getidx 'type' NB. replace type letters with names
- tbl=. (TypeNames {~ Types i. (<idx;1){tbl) (<idx;1)}tbl
-NB.  if. (<,'x') e. {."1 tbl do. 
-NB.    idx=. tbl getidx ,'x' NB. insert </br> where likely required in y,x,result
-NB.    tbl=. (<((LF,'  ');'<br/>') stringreplace (<idx;1){::tbl) (<idx;1)}tbl 
-NB.  end.
-)
-
-getidx=: ({."1@[ i. boxopen@])
-getval=: ({:"1@[ {~ getidx)
-
-tmpl_name=: 0 : 0
-
-## <%name%> *<%type%>*##
-)
-
-tmpl_typecaption=: 0 : 0
-<%caption%>
-)
-
-tmpl_descrip=: 0 : 0
-
-### Description ###
-<%descrip%>
-)
-
-tmpl_note=: 0 : 0
-
-### Note ###
-<%note%>
-)
-
-tmpl_usage=: 0 : 0
-
-### Usage ###
-~~~
-<%usage%>
-~~~
-)
-
-tmpl_y=: 0 : 0
-
-### Right Argument (*y*) ###
-<%y%>
-)
-
-tmpl_x=: 0 : 0
-
-### Left Argument (*x*) ###
-<%x%>
-)
-
-tmpl_m=: 0 : 0
-
-### m ###
-<%m%>
-)
-tmpl_n=: 0 : 0
-
-### n ###
-<%n%>
-)
-tmpl_u=: 0 : 0
-
-### u ###
-<%u%>
-)
-tmpl_v=: 0 : 0
-
-### v ###
-<%v%>
-)
-
-tmpl_result=: 0 : 0
-
-### Result ###
-<%result%>
-)
-
-tmpl_author=: 0 : 0
-
-### Author(s) ###
-<%author%>
-)
-
-tmpl_seealso=: 0 : 0
-
-### See Also ###
-<%seealso%>
-)
-tmpl_eg=: 0 : 0
-
-### Examples ###
-~~~
-<%eg%>
-~~~
-)
-
-Word_tmpl=: ([: ". 'tmpl_'&,) each Tags
+NB. uppercase first letter
+upper1=: toupper@{. , }.
 
 NB. =========================================================
-NB. PDF output using format/publish
-
-require 'format/publish'
-coclass 'rgsjoxypdf'
-coinsert 'joxygen'
-
-writeJoxy=: 4 : 0
- txt=. LF&joinstring makeWordSection each x
- txt=. Head,txt
- txt fwrites y,'.txt' NB. create input files for format/publish 
- publish jpath y,'.txt' NB. run format/publish to create PDF
+NB. add desc to definition
+adddesc=: 3 : 0
+if. -. (<'desc') e. {."1 y do.
+  y=. (3{.y),('desc';upper1 termstop (<2 1) pick y),3}.y
+end.
+y
 )
 
-Head=: 0 : 0
-<toc align=center, tocalign=right, toclevel=1>J topics documented:</toc>
-
+NB. =========================================================
+NB. cleanentry
+NB. argument is boxed list of lines
+NB. remove leading, trailing empty lines
+NB. returns text string. not LF terminated
+cleanentry=: 3 : 0
+dat=. y #~ (*./\b) +: *./\.b=. 0=#&> y
+}: ; dat ,each LF
 )
 
-NB. v Creates section of text markup for a Word
-makeWordSection=: 3 : 0
- tbl=. y #~ ({."1 y) e. Tags
- tbl=. processContent tbl
- msk=. Tags e. {."1 tbl
- tmpl=. msk # Word_tmpl
- tmpl=. ;({. , (<tmpl_typecaption) , 3&}.) tmpl
- srch=. ('<%' , ,&'%>') each {."1 tbl
- tmpl rplc , srch ,. {:"1 tbl  
+NB. =========================================================
+fixblocks=: 3 : 0
+len=. 0 i.~ (4<#&>y) *. (<'NB.- ') = 5 {.each y
+t=. ('NB.-|' , 4&}.) each len{.y
+t=. (<'NB.-')([,],[) t
+t,len}.y
 )
 
-NB. v Makes changes to some content to display better
-processContent=: 3 : 0
- tbl=. y
- idx=. tbl getidx 'type' NB. replace type letters with names
- tbl=. (TypeNames {~ Types i. (<idx;1){tbl) (<idx;1)}tbl
- if. (<,'x') e. {."1 tbl do. 
-   idx=. tbl getidx ,'x' NB. insert </br> where likely required in y,x,result
-   tbl=. (<((LF,'  ');'<br/>') stringreplace (<idx;1){::tbl) (<idx;1)}tbl 
- end.
+NB. =========================================================
+fixcontinue=: 3 : 0
+if. 0=#y do. '' return. end.
+b=. firstones (4<#&>y) *. (<'NB.- ') = 5 {.each y
+t=. b fixblocks fmask y
+b=. firstones (<'NB.+') = 4 {.each t
+b fixverbatim fmask t
 )
 
-getidx=: ({."1@[ i. boxopen@])
-getval=: ({:"1@[ {~ getidx)
-
-tmpl_name=: 0 : 0
-<h1><%name%></h1>
+NB. =========================================================
+fixverbatim=: 3 : 0
+len=. 0 i.~ (<'NB.+') = 4 {.each y
+cmt=. <'NB.+~~~'
+cmt,(len{.y),cmt,len}.y
 )
 
-tmpl_typecaption=: 0 : 0
-<%type%>:  <%caption%>
+NB. =========================================================
+getassigns=: 3 : 0
+txt=. ; y ,each LF
+rx=. Rxnna_jregex_,'([[:alpha:]][[:alnum:]_]*) *=:'
+hit=. rx rxmatches txt
+if. 0=#hit do. '' return. end.
+({:"2 hit) rxfrom txt
 )
 
-tmpl_descrip=: 0 : 0
-<h2>Description</h2>
-<%descrip%>
+NB. =========================================================
+hdef=: 3 : 0
+'name type'=. y
+'## ',name,' (',(>TypeNames {~ Types i.type),') ## {.hdef #',name,'}',LF2
 )
 
-tmpl_note=: 0 : 0
-<h2>Note</h2>
-<para><%note%></para>
+NB. =========================================================
+NB. nbsp: replace spaces
+nbsp=: 3 : 0
+n=. (y=' ') i. 0
+(;n#<'&nbsp;'), n}. y
 )
 
-tmpl_usage=: 0 : 0
-<h2>Usage</h2>
-<pre><%usage%></pre>
+NB. =========================================================
+NB. chop: NB.*foo n some text
+splithdr=: 3 : 0
+y=. 4}.y
+x=. y i. ' '
+nam=. x {. y
+y=. dlb (x+1) }. y
+typ=. {. y
+assert. typ e. Types
+cap=. dltb }.y
+nam;typ;cap
 )
 
-tmpl_y=: 0 : 0
-<h2>Right Argument (y)</h2>
-<%y%>
+NB. =========================================================
+NB. chop: scriptid - script desc
+splitname=: 3 : 0
+x=. y i. '-'
+(dltb x {. y);dltb (x+1) }. y
+)
+NB. main
+
+NB. =========================================================
+makedocs=: 3 : 0
+dat=. makedoc1 each Files
+hdr=. 0 {:: each dat
+scp=. makescripts hdr
+nms=. }. each dat
+ndx=. /: tolower each 0 {:: each nms
+hdr=. ndx{hdr
+nms=. ndx{nms
+lnk=. ; hdr makelink each nms
+nms=. ;nms
+ndx=. /: tolower each nms
+lnk=. ndx{lnk
+nms=. ndx{nms
+map=. makemap nms;<lnk
+r=. IndexHdr,LF2
+r=. r,scp,map
+m=. jpath '~temp/joxygen.md'
+h=. jpath '~temp/joxygen.htm'
+r fwrite m
+shell 'pandoc ',m,' -c "joxygen.css" -f markdown-auto_identifiers -o ',h
+(freads h) fwritenew Target,'/index.htm'
 )
 
-tmpl_x=: 0 : 0
-<h2>Left Argument (x)</h2>
-<%x%>
+NB. =========================================================
+makedoc1=: 3 : 0
+smoutput y
+txt=. 'b' fread Source,'/',y
+dat=. parse txt
+makescript dat
+hdr=. 0 pick dat
+hdr=. splitname (hdr i. LF){.hdr
+hdr;(<0 1){:: each }.dat
 )
 
-tmpl_m=: 0 : 0
-<h2>m</h2>
-<%m%>
-)
-tmpl_n=: 0 : 0
-<h2>n</h2>
-<%n%>
-)
-tmpl_u=: 0 : 0
-<h2>u</h2>
-<%u%>
-)
-tmpl_v=: 0 : 0
-<h2>v</h2>
-<%v%>
+NB. =========================================================
+makelink=: 4 : 0
+s=. (i.&'.' {.]) 0 pick x
+'[' ,each y ,each (<'](',s,'.htm#') ,each y ,each ')'
 )
 
-tmpl_result=: 0 : 0
-<h2>Result</h2>
-<para><%result%></para>
+NB. =========================================================
+makerefs=: 3 : 0
+ndx=. y i.&>']'
+lnk=. (ndx+2)}.each }:each y
+; lnk ,each LF
 )
 
-tmpl_author=: 0 : 0
-<h2>Author(s)</h2>
-<para><%author%></para>
+NB. =========================================================
+makescripts=: 3 : 0
+a=. anchorscript each {.&>y
+b=. {:&>y
+r=. h2 'Scripts'
+a=. '<td class="noun">'&, each a ,each <'</td>'
+b=. '<td class="noun">'&, each b ,each <'</td>'
+c=. ;tr each a,each b
+r,'<table class="noun">',c,'</table>',LF2
+)
+NB. parse
+
+NB. =========================================================
+NB. parse script
+NB. return boxed list:  header,defs
+parse=: 3 : 0
+dat=. remtws each y
+cmt=. 4{.each dat
+ndx=. cmt i. <'NB.%'
+assert. ndx<#dat
+len=. 1 + +/ *./\ (ndx+1) }. cmt e. 'NB.-';'NB.+'
+hdr=. cleanentry 4}.each fixcontinue len{.ndx}.dat
+msk=. (4{.each dat)=<'NB.*'
+dat=. parse1 each msk <;.1 dat
+nms=. (<0 1)&{:: each dat
+nms=. nms -. getassigns y
+if. #nms do.
+  smoutput 'names documented but not assigned:',;' ',each nms
+end.
+(<hdr),dat
 )
 
-tmpl_seealso=: 0 : 0
-<h2>See Also</h2>
-<%seealso%>
-)
-tmpl_eg=: 0 : 0
-<h2>Examples</h2>
-<pre><%eg%></pre>
+NB. =========================================================
+parse1=: 3 : 0
+r=. NTC ,. splithdr 0 pick {.y
+y=. }.y
+y=. y #~ *./\ (4{.each y) e. 'NB.-';'NB.+'
+y=. 4 }.each fixcontinue y
+msk=. y e. Tags,each ':'
+desc=. cleanentry (msk i.1) {. y
+r=. r,'desc';desc
+r=. r,parsetag &> msk <;.1 y
+r #~ 0<#&>{:"1 r
 )
 
-Word_tmpl=: ([: ". 'tmpl_'&,) each Tags
+NB. =========================================================
+parsetag=: 3 : 0
+hdr=. 0 pick y
+ndx=. hdr i.':'
+tag=. ndx{.hdr
+bal=. cleanentry }. y
+tag;bal
+)
+NB. script
 
- 
-NB. define paragraph styles for format/publish
+NB. =========================================================
+makedefs=: 3 : 0
+; makedef1 each y
+)
+
+NB. =========================================================
+makedef1=: 3 : 0
+r=. hdef 2 {. {:"1 y
+r=. r, ; makedef2 "1 [ 3}.y
+)
+
+NB. =========================================================
+makedef2=: 3 : 0
+'id txt'=. y
+if. id-:'desc' do.
+  hdr=. ''
+else.
+  hdr=. h3 >TagNames {~ Tags i. <id
+end.
+<hdr,txt,LF2
+)
+
+NB. =========================================================
+makelibhtm=: 3 : 0
+)
+
+NB. =========================================================
+makemap=: 3 : 0
+r=. h2 'Definitions'
+'nms anchors'=. y
+key=. toupper {.&> nms
+nms=. mapsep each key </. anchors
+key=. ~. key
+a=. '<td class="key">'&, each key ,each <'</td>'
+b=. '<td>'&, each nms ,each <'</td>'
+c=. ;tr each a ,each b
+r, '<table class="map">',c,'</table>',LF2
+)
+
+NB. =========================================================
+makeonelines=: 3 : 0
+if. 0=#y do. '' return. end.
+r=. '<hr>'
+t=. >(3{.{:"1) each y
+v=. 0{"1 t
+a=. '<td id="'&, each v ,each '" class="rid">'&, each v ,each <'</td>'
+b=. '<td class="rtype">'&, each (1{"1 t) ,each <'</td>'
+c=. '<td class="rdef">'&, each (2{"1 t) ,each <'</td>'
+d=. ;tr each a ,each b ,each c
+r,'<table class="rdef">',d,'</table>'
+)
+
+NB. =========================================================
+makepost=: ]
+
+NB. =========================================================
+makescript=: 3 : 0
+hdr=. <;._2 LF ,~ 0 pick y
+id=. 0 pick splitname 0 pick hdr
+nam=. (id i.'.') {. id
+dat=. }. y
+nms=. (<0 1){::each dat
+ndx=. /:tolower each nms
+dat=. ndx{dat
+nms=. ndx{nms
+typ=. ;(<1 1){::each dat
+r=. h0 id
+r=. r,lf2sep ; (}.hdr) ,each LF
+r=. r,makemap nms;<anchor each nms
+msk=. 3 = #&> dat
+r=. r,makeonelines msk#dat
+r=. r,makedefs adddesc each (-.msk)#dat
+m=. jpath '~temp/joxygen.md'
+h=. jpath '~temp/joxygen.htm'
+r fwrite m
+shell 'pandoc ',m,' -c "joxygen.css" -f markdown-auto_identifiers -o ',h
+(freads h) fwritenew Target,'/',nam,'.htm'
+)

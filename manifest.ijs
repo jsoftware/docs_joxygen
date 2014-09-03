@@ -3,21 +3,22 @@ NB. joxygen manifest
 CAPTION=: 'Documenting J Scripts'
 
 DESCRIPTION=: 0 : 0
-Generates various documentation formats from in-script comments
-that follow Joxygen conventions.
-Inspired by Doxygen, Roxygen.
+Generates html documentation from in-script comments
+Inspired by Doxygen and Roxygen.
 
-Contributed by Ric Sherlock
+Contributed by Ric Sherlock & Chris Burke
 )
 
-VERSION=: ''
+VERSION=: '1.0.1'
 
-RELEASE=: 'j802'
+RELEASE=: 'j802 j803'
 
 PLATFORMS=: ''
 
 FILES=: 0 : 0
-manifest.ijs
+joxygen.css
 joxygen.ijs
-test/test_joxygen.ijs
+test.ijs
+testdocs/
+testscripts/
 )
