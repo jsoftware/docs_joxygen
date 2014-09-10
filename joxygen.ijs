@@ -150,7 +150,7 @@ r=. r,scp,map
 m=. jpath '~temp/joxygen.md'
 h=. jpath '~temp/joxygen.htm'
 r fwrite m
-shell 'pandoc ',m,' -c "joxygen.css" -f markdown-auto_identifiers -o ',h
+shell 'pandoc "',m,'" -c "joxygen.css" -f markdown-auto_identifiers -o "',h,'"'
 (freads h) fwritenew Target,'/index.htm'
 )
 
