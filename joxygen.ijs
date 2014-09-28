@@ -84,7 +84,7 @@ dat=. dat #~ -. (0 e. $) &> dat
 hdr=. 0 {:: each dat
 scp=. makescripts hdr
 nms=. }. each dat
-ndx=. /: tolower each 0 {:: each nms
+ndx=. /: tolower each 0 {:: ::] each nms
 hdr=. ndx{hdr
 nms=. ndx{nms
 lnk=. ; hdr makelink each nms
@@ -112,7 +112,7 @@ else.
   makescript dat
   hdr=. 0 pick dat
   hdr=. splitname (hdr i. LF){.hdr
-  hdr;(<0 1){:: each }.dat
+  (<hdr),(<0 1){:: each }.dat
 end.
 )
 makelink=: 4 : 0
