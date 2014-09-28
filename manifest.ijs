@@ -9,7 +9,7 @@ Inspired by Doxygen and Roxygen.
 Contributed by Ric Sherlock & Chris Burke
 )
 
-VERSION=: '1.0.4'
+VERSION=: '1.0.5'
 
 RELEASE=: 'j802 j803'
 
