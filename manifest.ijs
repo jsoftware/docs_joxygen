@@ -9,9 +9,9 @@ Inspired by Doxygen and Roxygen.
 Contributed by Ric Sherlock & Chris Burke
 )
 
-VERSION=: '1.0.6'
+VERSION=: '1.0.7'
 
-RELEASE=: 'j802 j803'
+RELEASE=: 'j802 j803 j804'
 
 PLATFORMS=: ''
 
