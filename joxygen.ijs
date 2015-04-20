@@ -67,7 +67,7 @@ nam=. x {. y
 y=. dlb (x+1) }. y
 typ=. {. y
 if. -. typ e. Types do.
-  smoutput 'type not recognized: ',typ
+  smoutput 'type not recognized: ',nam,' ',typ
 end.
 cap=. dltb }.y
 nam;typ;cap
