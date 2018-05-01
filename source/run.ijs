@@ -9,4 +9,4 @@ load '~addons/docs/joxygen/test.ijs'
 meld T;'~Addons/docs/joxygen/source/testdocs'
 )
 
-load '~Addons/docs/joxygen/source/source/test1.ijs'
+load '~Addons/docs/joxygen/source/test1.ijs'

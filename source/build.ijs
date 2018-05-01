@@ -4,8 +4,8 @@ mkdir_j_ jpath '~Addons/docs/joxygen/testscripts'
 mkdir_j_ jpath '~addons/docs/joxygen/testdocs'
 mkdir_j_ jpath '~addons/docs/joxygen/testscripts'
 
-writesourcex_jp_ '~Addons/docs/joxygen/source/source';'~Addons/docs/joxygen/joxygen.ijs'
-writesourcex_jp_ '~Addons/docs/joxygen/source/source';'~addons/docs/joxygen/joxygen.ijs'
+writesourcex_jp_ '~Addons/docs/joxygen/source';'~Addons/docs/joxygen/joxygen.ijs'
+writesourcex_jp_ '~Addons/docs/joxygen/source';'~addons/docs/joxygen/joxygen.ijs'
 
 f=: 3 : 0
 s=. '~Addons/docs/joxygen/source/',y

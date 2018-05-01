@@ -4,7 +4,7 @@ Target=: jpath '~temp/joxygen'
 mkdir_j_ Target
 ferase 1 dir Target
 
-Source=: jpath '~Addons/docs/joxygen/source/source'
+Source=: jpath '~Addons/docs/joxygen/source'
 
 Files=: 0 : 0
 tester.ijs
