@@ -99,6 +99,12 @@ n=. (y=' ') i. 0
 )
 
 NB. =========================================================
+pandoc=: 3 : 0
+'src tgt'=. y
+shell 'pandoc "',src,'" -c "joxygen.css" -s -t html5 -V lang=en -f markdown-auto_identifiers -o "',tgt,'"'
+)
+
+NB. =========================================================
 NB. chop: NB.*foo n some text
 splithdr=: 3 : 0
 y=. 4}.y

@@ -60,6 +60,10 @@ nbsp=: 3 : 0
 n=. (y=' ') i. 0
 (;n#<'&nbsp;'), n}. y
 )
+pandoc=: 3 : 0
+'src tgt'=. y
+shell 'pandoc "',src,'" -c "joxygen.css" -s -t html5 -V lang=en -f markdown-auto_identifiers -o "',tgt,'"'
+)
 splithdr=: 3 : 0
 y=. 4}.y
 x=. y i. ' '
@@ -98,7 +102,7 @@ r=. r,scp,map
 m=. jpath '~temp/joxygen.md'
 h=. jpath '~temp/joxygen.htm'
 r fwrite m
-shell 'pandoc "',m,'" -c "joxygen.css" -f markdown-auto_identifiers -o "',h,'"'
+pandoc m;h
 (freads h) fwritenew Target,'/index.htm'
 )
 makedoc1=: 3 : 0
@@ -230,6 +234,6 @@ r=. r,makedefs adddesc each (-.msk)#dat
 m=. jpath '~temp/joxygen.md'
 h=. jpath '~temp/joxygen.htm'
 r fwrite m
-shell 'pandoc "',m,'" -c "joxygen.css" -f markdown-auto_identifiers -o "',h,'"'
+pandoc m;h
 (freads h) fwritenew Target,'/',nam,'.htm'
 )
